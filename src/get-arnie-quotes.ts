@@ -1,10 +1,17 @@
-import { httpGet } from './mock-http-interface';
+import { httpGet } from "./mock-http-interface";
 
-// TODO define this type properly
-type TResult = any;
+type TResult = { "Arnie Quote": string } | { FAILURE: string };
 
-export const getArnieQuotes = async (urls : string[]) : Promise<TResult[]> => {
-  // TODO: Implement this function.
-  
-  return [];
+export const getArnieQuotes = async (urls: string[]): Promise<TResult[]> => {
+  const responses = await Promise.all(urls.map(httpGet));
+
+  return responses.map(({ status, body }) => {
+    const { message } = JSON.parse(body); // input validation not required
+
+    if (status === 200) {
+      return { "Arnie Quote": message };
+    }
+
+    return { FAILURE: message };
+  });
 };
